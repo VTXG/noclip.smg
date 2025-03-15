@@ -19,6 +19,7 @@ import * as JPAExplorer from '../InteractiveExamples/JPAExplorer.js';
 import { SceneContext } from '../SceneBase.js';
 import { GfxrAttachmentSlot } from '../gfx/render/GfxRenderGraph.js';
 import { GfxRenderInstList } from '../gfx/render/GfxRenderInstManager.js';
+import { AnimationCheckbox } from './ui.js';
 
 export class BasicRenderer implements Viewer.SceneGfx {
     public renderHelper: GXRenderHelperGfx;
@@ -41,6 +42,33 @@ export class BasicRenderer implements Viewer.SceneGfx {
                 this.modelInstances[i].setVertexColorsEnabled(enableVertexColorsCheckbox.checked);
         };
         renderHacksPanel.contents.appendChild(enableVertexColorsCheckbox.elem);
+
+        const animPanel = new UI.Panel();
+        animPanel.customHeaderBackgroundColor = UI.COOL_BLUE_COLOR;
+        animPanel.setTitle(UI.CUTSCENE_ICON, 'Animations');
+
+        for (let i = 0; i < this.rarc[0].files.length; i++) {
+            const animFile = this.rarc[0].files[i];
+            let extension = animFile.name.slice(-3);
+
+            if (extension === 'btk' || extension === 'brk' || extension === 'bck') {
+                const animCheckbox = new AnimationCheckbox(animFile, extension);
+
+                animCheckbox.onchanged = () => {
+                    if (animCheckbox.checked) {
+                        for (let i = 0; i < this.modelInstances.length; i++)
+                            animCheckbox?.bindAnim(this.modelInstances[i]);
+                    }
+                    else {
+                        for (let i = 0; i < this.modelInstances.length; i++)
+                            animCheckbox?.clearAnim(this.modelInstances[i]);
+                    }
+                }
+    
+                animPanel.contents.appendChild(animCheckbox.elem);
+            }
+        }
+
         const enableTextures = new UI.Checkbox('Enable Textures', true);
         enableTextures.onchanged = () => {
             for (let i = 0; i < this.modelInstances.length; i++)
@@ -50,7 +78,7 @@ export class BasicRenderer implements Viewer.SceneGfx {
 
         const layersPanel = new UI.LayerPanel(this.modelInstances);
 
-        return [layersPanel, renderHacksPanel];
+        return [layersPanel, animPanel, renderHacksPanel];
     }
 
     public addModelInstance(scene: J3DModelInstanceSimple): void {
