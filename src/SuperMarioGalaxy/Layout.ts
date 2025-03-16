@@ -10,20 +10,20 @@ import { initEachResTable } from "./LiveActor.js";
 import { getRes } from "./Animation.js";
 import { assert, assertExists } from "../util.js";
 import { BTIData } from "../Common/JSYSTEM/JUTTexture.js";
-import * as TPL from "../PaperMarioTTYD/tpl.js";
+import * as TPL from "../External/tpl.js";
 import { TextureMapping } from "../TextureHolder.js";
 import { GfxRenderInstManager } from "../gfx/render/GfxRenderInstManager.js";
 import { J3DFrameCtrl } from "../Common/JSYSTEM/J3D/J3DGraphAnimator.js";
 import { LoopMode as J3DLoopMode } from "../Common/JSYSTEM/J3D/J3DLoader.js";
-import { LoopMode as NW4RLoopMode } from "../rres/brres.js";
+import { LoopMode as NW4RLoopMode } from "../Common/NW4R/lyt/Layout.js";
 import { CharWriter, parseBRFNT, ResFont, TagProcessor } from "../Common/NW4R/lyt/Font.js";
-import { vec3, vec4 } from "gl-matrix";
+import { vec4 } from "gl-matrix";
 import { connectToScene } from "./ActorUtil.js";
 import { getLayoutMessageDirect } from "./MessageData.js";
 import { ViewerRenderInput } from "../viewer.js";
 import { GX_Program } from "../gx/gx_material.js";
 import { ub_SceneParamsBufferSize } from "../gx/gx_render.js";
-import { Color, colorCopy, colorNewCopy, colorNewFromRGBA8, OpaqueBlack, TransparentBlack, White } from "../Color.js";
+import { colorCopy, colorNewCopy, colorNewFromRGBA8, TransparentBlack, White } from "../Color.js";
 
 export class LayoutHolder {
     public rlytTable = new Map<string, RLYT>();

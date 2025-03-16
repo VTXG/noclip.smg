@@ -8,7 +8,6 @@ import * as Yaz0 from './Common/Compression/Yaz0.js';
 import * as CX from './Common/Compression/CX.js';
 
 import * as J3D from './j3d/scenes.js';
-import * as RRES from './rres/scenes.js';
 import * as JPAExplorer from './InteractiveExamples/JPAExplorer.js';
 import { SceneContext } from "./SceneBase.js";
 import { DataFetcher, NamedArrayBufferSlice } from "./DataFetcher.js";
@@ -49,24 +48,16 @@ export function decompressArbitraryFile(buffer: ArrayBufferSlice): ArrayBufferSl
 async function loadArbitraryFile(context: SceneContext, buffer: ArrayBufferSlice): Promise<SceneGfx> {
     const device = context.device;
 
-    buffer = await decompressArbitraryFile(buffer);
+    buffer = decompressArbitraryFile(buffer);
     const magic = readString(buffer, 0x00, 0x04);
 
     if (magic === 'RARC' || magic === 'CRAR' || magic === 'J3D2')
         return J3D.createSceneFromBuffer(context, buffer);
 
-    if (magic === '\x55\xAA\x38\x2D') // U8
-        return RRES.createSceneFromU8Buffer(context, buffer);
-
-    if (magic === 'bres')
-        return RRES.createBasicRRESRendererFromBRRES(device, [buffer]);
-
     throw "whoops";
 }
 
 export async function createSceneFromFiles(context: SceneContext, buffers: NamedArrayBufferSlice[]): Promise<SceneGfx> {
-    const device = context.device;
-
     buffers.sort((a, b) => a.name.localeCompare(b.name));
 
     const buffer = buffers[0];
@@ -79,9 +70,6 @@ export async function createSceneFromFiles(context: SceneContext, buffers: Named
 
     if (buffers.every((b) => b.name.endsWith('.jpa')))
         return JPAExplorer.createRendererFromBuffers(context, buffers);
-
-    if (buffers.some((b) => b.name.endsWith('.brres')))
-        return RRES.createBasicRRESRendererFromBRRES(device, buffers);
 
     if (buffer.name.endsWith('.rarc') || buffer.name.endsWith('.bmd') || buffer.name.endsWith('.bdl'))
         return J3D.createSceneFromBuffer(context, buffer);

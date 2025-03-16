@@ -349,7 +349,7 @@ export class SlimySpringWaterDesc implements SceneDesc {
 
         // Skybox.
         {
-            const rarc = RARC.parse(await Yaz0.decompress(await dataFetcher.fetchData("SuperMarioGalaxy2/ObjectData/BeyondHorizonSky.arc")));
+            const rarc = RARC.parse(Yaz0.decompress(await dataFetcher.fetchData("SuperMarioGalaxy2/ObjectData/BeyondHorizonSky.arc")));
             const skybox = createModelInstance(device, cache, rarc.findFile('BeyondHorizonSky.bdl')!, rarc.findFile('BeyondHorizonSky.btk'), null, null, null);
             skybox.animationController.fps = 60;
             skybox.isSkybox = true;
@@ -358,7 +358,7 @@ export class SlimySpringWaterDesc implements SceneDesc {
 
         // Nice-looking box. Is this worth it?
         {
-            const rarc = RARC.parse(await Yaz0.decompress(await dataFetcher.fetchData("SuperMarioGalaxy2/ObjectData/SkyIslandStepPartsA.arc")));
+            const rarc = RARC.parse(Yaz0.decompress(await dataFetcher.fetchData("SuperMarioGalaxy2/ObjectData/SkyIslandStepPartsA.arc")));
             const bmd = BMD.parse(rarc.findFileData('SkyIslandStepPartsA.bdl')!);
 
             // Append a fake joint for the grass. This is disgusting.
@@ -381,7 +381,7 @@ export class SlimySpringWaterDesc implements SceneDesc {
 
         // Water.
         {
-            const rarc = RARC.parse(await Yaz0.decompress(await dataFetcher.fetchData("SuperMarioGalaxy2/ObjectData/UnderGroundDangeonPlanetA.arc")));
+            const rarc = RARC.parse(Yaz0.decompress(await dataFetcher.fetchData("SuperMarioGalaxy2/ObjectData/UnderGroundDangeonPlanetA.arc")));
 
             // Build a fake model instance, bind the BTK to it.
             const bmd = BMD.parse(rarc.findFileData('UnderGroundDangeonPlanetA.bdl')!);

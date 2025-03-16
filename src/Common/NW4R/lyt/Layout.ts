@@ -16,9 +16,8 @@ import { ColorKind, GXMaterialHelperGfx, MaterialParams } from "../../../gx/gx_r
 import { TEX1_SamplerSub, translateSampler } from "../../JSYSTEM/JUTTexture.js";
 import { getPointHermite } from "../../../Spline.js";
 import { arrayCopy } from '../../../gfx/platform/GfxPlatformObjUtil.js';
-import { LoopMode } from "../../../rres/brres.js";
-import { TPLTextureHolder } from "../../../PaperMarioTTYD/render.js";
-import { TPL } from "../../../PaperMarioTTYD/tpl.js";
+import { TPLTextureHolder } from "../../../External/render.js";
+import { TPL } from "../../../External/tpl.js";
 import { CharWriter, ResFont, TagProcessor } from "./Font.js";
 import { fillMatrix4x3 } from "../../../gfx/helpers/UniformBufferHelpers.js";
 
@@ -750,6 +749,11 @@ const enum RLANAnimationTrackType {
     IndirectMatrix_Rotation,
     IndirectMatrix_ScaleS,
     IndirectMatrix_ScaleT,
+}
+
+export const enum LoopMode {
+    ONCE = 0x00,
+    REPEAT = 0x01,
 }
 
 interface RLANKeyframe {

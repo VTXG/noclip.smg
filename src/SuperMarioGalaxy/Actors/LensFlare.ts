@@ -1,7 +1,7 @@
 
 import { ReadonlyVec3, mat4, vec2, vec3 } from "gl-matrix";
 import { MathConstants, saturate, setMatrixTranslation, transformVec3Mat4w1, vec3SetAll } from "../../MathHelpers.js";
-import { PeekZManager, PeekZResult } from "../../ZeldaWindWaker/d_dlst_peekZ.js";
+import { PeekZManager, PeekZResult } from "../../External/d_dlst_peekZ.js";
 import { gfxDeviceNeedsFlipY } from "../../gfx/helpers/GfxDeviceHelpers.js";
 import { compareDepthValues } from "../../gfx/helpers/ReversedDepthHelpers.js";
 import { GfxClipSpaceNearZ, GfxCompareMode, GfxDevice } from "../../gfx/platform/GfxPlatform.js";

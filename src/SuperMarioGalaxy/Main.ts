@@ -919,7 +919,7 @@ export class ModelCache {
             return null;
         }
 
-        const decompressed = await Yaz0.decompress(buffer);
+        const decompressed = Yaz0.decompress(buffer);
         const archiveName = archivePath.split('/').pop()!.split('.')[0];
         const rarc = RARC.parse(decompressed, archiveName);
         this.archiveCache.set(archivePath, rarc);

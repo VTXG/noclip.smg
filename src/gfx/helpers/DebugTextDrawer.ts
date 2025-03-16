@@ -127,7 +127,7 @@ export class DebugTextDrawer {
 export async function makeDebugTextDrawer(context: SceneContext): Promise<DebugTextDrawer> {
     return context.dataShare.ensureObject<DebugTextDrawer>(`DebugTextDrawer`, async () => {
         const fontArcData = await context.dataFetcher.fetchData(`SuperMarioGalaxy/LayoutData/Font.arc`);
-        const fontArc = JKRArchive.parse(await decompress(fontArcData));
+        const fontArc = JKRArchive.parse(decompress(fontArcData));
         const fontBRFNT = parseBRFNT(fontArc.findFileData(`messagefont26.brfnt`)!);
         const fontData = new ResFont(context.device, fontBRFNT);
         return new DebugTextDrawer(context.device, fontData);
