@@ -664,6 +664,24 @@ export class MultiSelect extends ScrollSelect {
     }
 }
 
+export class ListContainer implements Widget {
+    private toplevel: HTMLElement;
+    
+    public elem: HTMLElement;
+    public contents: HTMLElement;
+
+    constructor() {
+        this.toplevel = document.createElement('div');
+        this.toplevel.style.maxHeight = '300px';
+        this.toplevel.style.overflowY = 'scroll';
+
+        this.contents = document.createElement('div');
+        this.toplevel.appendChild(this.contents);
+
+        this.elem = this.toplevel;
+    }
+}
+
 export class Checkbox implements Widget {
     public elem: HTMLElement;
     public checked: boolean = false;

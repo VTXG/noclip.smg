@@ -5,7 +5,8 @@ import { readString } from '../util.js';
 import * as UI from '../ui.js';
 import * as Viewer from '../viewer.js';
 
-import { AnimationBase, BMD, BMT, BTK, BRK, BCK, TTK1, TRK1, ANK1 } from '../Common/JSYSTEM/J3D/J3DLoader.js';
+import { AnimationEntry } from './anim.js';
+import { BMD, BMT, BTK, BRK, BCK } from '../Common/JSYSTEM/J3D/J3DLoader.js';
 import * as RARC from '../Common/JSYSTEM/JKRArchive.js';
 import { readBTI_Texture } from '../Common/JSYSTEM/JUTTexture.js';
 import { J3DModelData, J3DModelMaterialData } from '../Common/JSYSTEM/J3D/J3DGraphBase.js';
@@ -19,7 +20,6 @@ import * as JPAExplorer from '../InteractiveExamples/JPAExplorer.js';
 import { SceneContext } from '../SceneBase.js';
 import { GfxrAttachmentSlot } from '../gfx/render/GfxRenderGraph.js';
 import { GfxRenderInstList } from '../gfx/render/GfxRenderInstManager.js';
-import { AnimationEntry } from './anim.js';
 
 export class BasicRenderer implements Viewer.SceneGfx {
     public renderHelper: GXRenderHelperGfx;
@@ -63,6 +63,8 @@ export class BasicRenderer implements Viewer.SceneGfx {
         animPanel.customHeaderBackgroundColor = UI.COOL_BLUE_COLOR;
         animPanel.setTitle(UI.CUTSCENE_ICON, 'Animations');
 
+        const scrollViewer = new UI.ListContainer();
+
         for (let i = 0; i < this.animations.length; i++) {
             const anim = this.animations[i];
             const animCheckbox = new UI.Checkbox(anim.name, false);
@@ -74,8 +76,10 @@ export class BasicRenderer implements Viewer.SceneGfx {
                     : anim.clearAnim(this.modelInstances[i]);
             }
 
-            animPanel.contents.appendChild(animCheckbox.elem);
+            scrollViewer.contents.appendChild(animCheckbox.elem);
         }
+
+        animPanel.contents.appendChild(scrollViewer.elem);
 
         const layersPanel = new UI.LayerPanel(this.modelInstances);
         return [layersPanel, animPanel, renderHacksPanel];
@@ -99,8 +103,6 @@ export class BasicRenderer implements Viewer.SceneGfx {
     }
 
     public render(device: GfxDevice, viewerInput: Viewer.ViewerRenderInput) {
-        const renderInstManager = this.renderHelper.renderInstManager;
-
         const builder = this.renderHelper.renderGraph.newGraphBuilder();
 
         const mainColorDesc = makeBackbufferDescSimple(GfxrAttachmentSlot.Color0, viewerInput, standardFullClearRenderPassDescriptor);

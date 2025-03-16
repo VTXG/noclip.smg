@@ -1905,6 +1905,7 @@ export abstract class SMGSceneDescBase implements Viewer.SceneDesc {
     }
 
     public async createScene(device: GfxDevice, context: SceneContext): Promise<Viewer.SceneGfx> {
+        console.log(this.pathBase);
         const modelCache = await context.dataShare.ensureObject<ModelCache>(`${this.pathBase}/ModelCache`, async () => {
             return new ModelCache(device, this.pathBase, context.dataFetcher);
         });

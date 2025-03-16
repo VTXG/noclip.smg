@@ -30,7 +30,7 @@ import { debugJunk } from './DebugJunk.js';
 import { IS_DEVELOPMENT } from './BuildVersion.js';
 
 const sceneGroups: (string | SceneGroup)[] = [
-    "Mario Galaxy",
+    "Base Game",
     Scenes_SuperMarioGalaxy1.sceneGroup,
     Scenes_SuperMarioGalaxy2.sceneGroup
 ];
@@ -408,6 +408,11 @@ class Main {
         e.preventDefault();
         const transfer = e.dataTransfer;
         const files = await traverseFileSystemDataTransfer(transfer);
+
+        // for (let i = 0; i < files.length; i++) {
+        //     console.log(files[i].path + '/' + files[i].name);
+        // }
+
         const sceneDesc = new DroppedFileSceneDesc(files);
         this.droppedFileGroup.sceneDescs.push(sceneDesc);
         this.sceneDatabase.addSceneDesc(this.droppedFileGroup, sceneDesc);

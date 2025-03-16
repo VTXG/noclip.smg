@@ -1202,6 +1202,8 @@ export class StudioPanel extends FloatingPanel {
     private saveAnimationBtn: HTMLButtonElement;
     private importAnimationBtn: HTMLButtonElement;
     private exportAnimationBtn: HTMLButtonElement;
+    private importCanmBtn: HTMLButtonElement;
+    private exportCanmBtn: HTMLButtonElement;
     private helpBtn: HTMLButtonElement;
     private studioSettingsContainer: HTMLElement;
     private timelineModeSelect: HTMLSelectElement;
@@ -1598,6 +1600,8 @@ export class StudioPanel extends FloatingPanel {
                         <button type="button" id="loadAnimationBtn" class="SettingsButton">Load</button>
                         <button type="button" id="importAnimationBtn" class="SettingsButton">Import</button>
                         <button type="button" id="exportAnimationBtn" class="SettingsButton">Export</button>
+                        <button type="button" id="importCanmBtn" class="SettingsButton">Import .canm</button>
+                        <button type="button" id="exportCanmBtn" class="SettingsButton">Export .canm</button>
                         <button type="button" id="helpBtn" class="SettingsButton">Help</button>
                     </div>
                     <div style="position: absolute; bottom: 3rem; height: 3rem; left: 50%; transform: translate(-50%, 0);">
@@ -1752,6 +1756,12 @@ export class StudioPanel extends FloatingPanel {
         this.exportAnimationBtn = this.contents.querySelector('#exportAnimationBtn') as HTMLButtonElement;
         this.exportAnimationBtn.title = 'Save the current animation as a JSON file.';
 
+        this.importCanmBtn = this.contents.querySelector('#importCanmBtn') as HTMLButtonElement;
+        this.importCanmBtn.title = 'Load an animation from a CANM file.';
+
+        this.exportCanmBtn = this.contents.querySelector('#exportCanmBtn') as HTMLButtonElement;
+        this.exportCanmBtn.title = 'Save the current animation as a CANM file.';
+
         this.helpBtn = this.contents.querySelector('#helpBtn') as HTMLButtonElement;
         this.helpBtn.onclick = () => {
             const helpLink = document.createElement('a') as HTMLAnchorElement;
@@ -1774,8 +1784,11 @@ export class StudioPanel extends FloatingPanel {
             this.saveAnimation();
             this.displayMessage('Saved animation to local storage.');
         }
-        this.exportAnimationBtn.onclick = () => this.exportAnimation();
         this.importAnimationBtn.onclick = () => this.importAnimation();
+        this.exportAnimationBtn.onclick = () => this.exportAnimation();
+        
+        this.importCanmBtn.onclick = () => this.importCanm();
+        this.exportCanmBtn.onclick = () => this.exportCanm();
 
         this.settingsTabBtn.addEventListener('click', this.onTabBtnClick);
         setElementHighlighted(this.settingsTabBtn, false);
@@ -3458,18 +3471,6 @@ export class StudioPanel extends FloatingPanel {
         window.localStorage.setItem('studio-animation-' + GlobalSaveManager.getCurrentSceneDescId(), jsonAnim);
     }
 
-    private exportAnimation() {
-        if (!this.animation || !this.timeline) {
-            this.displayError('Export failed - No animation is currently loaded.');
-            return;
-        }
-        const a = document.createElement('a');
-        const anim = new Blob([this.serializeAnimation()], { type: 'application/json' });
-        a.href = URL.createObjectURL(anim);
-        a.download = 'studio-animation-' + GlobalSaveManager.getCurrentSceneDescId() + '.json';
-        a.click();
-    }
-
     private importAnimation() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -3497,6 +3498,26 @@ export class StudioPanel extends FloatingPanel {
             }
         }
         input.click();
+    }
+
+    private exportAnimation() {
+        if (!this.animation || !this.timeline) {
+            this.displayError('Export failed - No animation is currently loaded.');
+            return;
+        }
+        const a = document.createElement('a');
+        const anim = new Blob([this.serializeAnimation()], { type: 'application/json' });
+        a.href = URL.createObjectURL(anim);
+        a.download = 'studio-animation-' + GlobalSaveManager.getCurrentSceneDescId() + '.json';
+        a.click();
+    }
+
+    private importCanm() {
+        
+    }
+
+    private exportCanm() {
+        
     }
 
     private isValidAnimationObj(obj: any): boolean {
