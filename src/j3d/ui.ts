@@ -13,29 +13,28 @@ export class AnimationCheckbox extends Checkbox {
         this.type = type;
 
         switch (type) {
-            case "btk":
-                this.animation = BTK.parse(file.buffer);
-                break;
-            case "brk":
-                this.animation = BRK.parse(file.buffer);
-                break;
-            case "bck":
-                this.animation = BCK.parse(file.buffer);
-                break;
-            default:
-                throw new Error("Invalid type.");
+            case "btk": this.animation = BTK.parse(file.buffer); break;
+            case "brk": this.animation = BRK.parse(file.buffer); break;
+            case "bck": this.animation = BCK.parse(file.buffer); break;
+            default: throw new Error("Invalid type.");
         }
     }
 
     public bindAnim(model: J3DModelInstanceSimple): void {
-        if (this.type === 'btk') model.bindTTK1(this.animation as TTK1);
-        else if (this.type === 'brk') model.bindTRK1(this.animation as TRK1);
-        else if (this.type === 'bck') model.bindANK1(this.animation as ANK1);
+        switch (this.type) {
+            case "btk": model.bindTTK1(this.animation as TTK1); break;
+            case "brk": model.bindTRK1(this.animation as TRK1); break;
+            case "bck": model.bindANK1(this.animation as ANK1); break;
+            default: throw new Error("Invalid type.");
+        }
     }
 
     public clearAnim(model: J3DModelInstanceSimple): void {
-        if (this.type === 'btk') model.bindTTK1(null);
-        else if (this.type === 'brk') model.bindTRK1(null);
-        else if (this.type === 'bck') model.bindANK1(null);
+        switch (this.type) {
+            case "btk": model.bindTTK1(null); break;
+            case "brk": model.bindTRK1(null); break;
+            case "bck": model.bindANK1(null); break;
+            default: throw new Error("Invalid type.");
+        }
     }
 }

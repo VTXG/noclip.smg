@@ -27,6 +27,10 @@ export default class AnimationController {
         this.setTimeInMilliseconds(viewerInput.time);
     }
 
+    public incTimeInMilliseconds(incTime: number): void {
+        this.setTimeInMilliseconds(this.getTimeInSeconds() * 1000.0 + incTime);
+    }
+
     public quantizeTimeToFPS(): void {
         this.timeInFrames = this.timeInFrames | 0;
     }

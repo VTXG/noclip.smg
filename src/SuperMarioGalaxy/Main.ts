@@ -255,6 +255,25 @@ export class SMGRenderer implements Viewer.SceneGfx {
             return null;
     }
 
+    private createObjSelectPanel(): UI.Panel | null {
+        const objSelectPanel = new UI.Panel();
+        objSelectPanel.customHeaderBackgroundColor = UI.COOL_BLUE_COLOR;
+        objSelectPanel.setTitle(UI.SEARCH_ICON, 'Object List');
+
+        const objSelect = new UI.SingleSelect();
+        const objNames: string[] = [];
+
+        for (let i = 0; i < this.sceneObjHolder.nameObjHolder.nameObjs.length; i++) {
+            const nameObj = this.sceneObjHolder.nameObjHolder.nameObjs[i];
+            objNames.push(nameObj.name);
+        }
+
+        objSelect.setStrings(objNames);
+        objSelectPanel.contents.append(objSelect.elem);
+
+        return objSelectPanel;
+    }
+
     public createPanels(): UI.Panel[] {
         const panels: UI.Panel[] = [];
 
@@ -264,6 +283,10 @@ export class SMGRenderer implements Viewer.SceneGfx {
         const renderHacksPanel = this.createRenderHacksPanel();
         if (renderHacksPanel !== null)
             panels.push(renderHacksPanel);
+
+        const objSelectPanel = this.createObjSelectPanel();
+        if (objSelectPanel !== null)
+            panels.push(objSelectPanel);
 
         return panels;
     }
@@ -1538,6 +1561,9 @@ class SMGSpawner {
         const planetTableEntry = this.sceneObjHolder.planetMapCreator.getActorTableEntry(objName, gameBit);
         if (planetTableEntry !== null)
             return planetTableEntry;
+
+        if (this.sceneObjHolder.modelCache.isObjectDataExist(`${objName}.arc`))
+            return { objName, factoryFunc: null, requestArchivesFunc: null, gameBits: gameBit };
 
         return null;
     }

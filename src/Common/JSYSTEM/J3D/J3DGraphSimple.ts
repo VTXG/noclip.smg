@@ -250,6 +250,7 @@ export class J3DModelInstanceSimple extends J3DModelInstance {
      * By default, this will default to this instance's own {@member animationController}.
      */
     public bindANK1(ank1: ANK1 | null, animationController: AnimationController = this.animationController): void {
+        this.animationController.setTimeInFrames(0);
         this.jointMatrixCalc = ank1 !== null ? new JointMatrixCalcANK1(animationController, ank1) : new JointMatrixCalcNoAnm();
     }
 
@@ -286,7 +287,7 @@ export class J3DModelInstanceSimple extends J3DModelInstance {
 
         const camera = viewerInput.camera;
 
-        this.animationController.setTimeInMilliseconds(viewerInput.time);
+        this.animationController.incTimeInMilliseconds(viewerInput.deltaTime);
         this.calcSkybox(camera);
         this.calcAnim();
         this.calcView(camera.viewMatrix, camera.frustum);

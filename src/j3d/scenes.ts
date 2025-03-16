@@ -36,38 +36,13 @@ export class BasicRenderer implements Viewer.SceneGfx {
         const renderHacksPanel = new UI.Panel();
         renderHacksPanel.customHeaderBackgroundColor = UI.COOL_BLUE_COLOR;
         renderHacksPanel.setTitle(UI.RENDER_HACKS_ICON, 'Render Hacks');
+        
         const enableVertexColorsCheckbox = new UI.Checkbox('Enable Vertex Colors', true);
         enableVertexColorsCheckbox.onchanged = () => {
             for (let i = 0; i < this.modelInstances.length; i++)
                 this.modelInstances[i].setVertexColorsEnabled(enableVertexColorsCheckbox.checked);
         };
         renderHacksPanel.contents.appendChild(enableVertexColorsCheckbox.elem);
-
-        const animPanel = new UI.Panel();
-        animPanel.customHeaderBackgroundColor = UI.COOL_BLUE_COLOR;
-        animPanel.setTitle(UI.CUTSCENE_ICON, 'Animations');
-
-        for (let i = 0; i < this.rarc[0].files.length; i++) {
-            const animFile = this.rarc[0].files[i];
-            let extension = animFile.name.slice(-3);
-
-            if (extension === 'btk' || extension === 'brk' || extension === 'bck') {
-                const animCheckbox = new AnimationCheckbox(animFile, extension);
-
-                animCheckbox.onchanged = () => {
-                    if (animCheckbox.checked) {
-                        for (let i = 0; i < this.modelInstances.length; i++)
-                            animCheckbox?.bindAnim(this.modelInstances[i]);
-                    }
-                    else {
-                        for (let i = 0; i < this.modelInstances.length; i++)
-                            animCheckbox?.clearAnim(this.modelInstances[i]);
-                    }
-                }
-    
-                animPanel.contents.appendChild(animCheckbox.elem);
-            }
-        }
 
         const enableTextures = new UI.Checkbox('Enable Textures', true);
         enableTextures.onchanged = () => {
@@ -76,8 +51,48 @@ export class BasicRenderer implements Viewer.SceneGfx {
         };
         renderHacksPanel.contents.appendChild(enableTextures.elem);
 
-        const layersPanel = new UI.LayerPanel(this.modelInstances);
+        const isSkyboxCheckbox = new UI.Checkbox('Enable Skybox Behaviour', false);
+        isSkyboxCheckbox.onchanged = () => {
+            for (let i = 0; i < this.modelInstances.length; i++)
+                this.modelInstances[i].isSkybox = isSkyboxCheckbox.checked;
+        };
+        renderHacksPanel.contents.appendChild(isSkyboxCheckbox.elem);
 
+        const animPanel = new UI.Panel();
+        animPanel.customHeaderBackgroundColor = UI.COOL_BLUE_COLOR;
+        animPanel.setTitle(UI.CUTSCENE_ICON, 'Animations');
+
+        for (let i = 0; i < this.rarc.length; i++) {
+            const rarc = this.rarc[i];
+            
+            for (let j = 0; j < rarc.files.length; j++) {
+                const animFile = rarc.files[j];
+    
+                if (animFile.name.length < 4)
+                    continue;
+    
+                let extension = animFile.name.slice(-3);
+    
+                if (extension === 'btk' || extension === 'brk' || extension === 'bck') {
+                    const animCheckbox = new AnimationCheckbox(animFile, extension);
+    
+                    animCheckbox.onchanged = () => {
+                        if (animCheckbox.checked) {
+                            for (let i = 0; i < this.modelInstances.length; i++)
+                                animCheckbox?.bindAnim(this.modelInstances[i]);
+                        }
+                        else {
+                            for (let i = 0; i < this.modelInstances.length; i++)
+                                animCheckbox?.clearAnim(this.modelInstances[i]);
+                        }
+                    }
+        
+                    animPanel.contents.appendChild(animCheckbox.elem);
+                }
+            }
+        }
+
+        const layersPanel = new UI.LayerPanel(this.modelInstances);
         return [layersPanel, animPanel, renderHacksPanel];
     }
 
@@ -140,6 +155,7 @@ export function createModelInstance(device: GfxDevice, cache: GfxRenderCache, bm
     const bmt = bmtFile ? BMT.parse(bmtFile.buffer) : null;
     const bmdModel = new J3DModelData(device, cache, bmd);
     const scene = new J3DModelInstanceSimple(bmdModel, materialHacks);
+
     if (bmt !== null)
         scene.setModelMaterialDataOwned(new J3DModelMaterialData(device, cache, bmt));
 
@@ -170,23 +186,19 @@ function createScenesFromBuffer(device: GfxDevice, renderer: BasicRenderer, buff
             const file = rarc.files[i];
 
             if (file.name.endsWith('.bmd') || file.name.endsWith('.bdl')) {
-                // Find the corresponding btk.
                 const basename = file.name.split('.')[0];
-                const btkFile = rarc.files.find((f) => f.name === `${basename}.btk`) || null;
-                const brkFile = rarc.files.find((f) => f.name === `${basename}.brk`) || null;
-                const bckFile = rarc.files.find((f) => f.name === `${basename}.bck`) || null;
                 const bmtFile = rarc.files.find((f) => f.name === `${basename}.bmt`) || null;
+
                 let modelInstance;
+
                 try {
-                    modelInstance = createModelInstance(device, renderer.renderHelper.renderInstManager.gfxRenderCache, file, btkFile, brkFile, bckFile, bmtFile);
+                    modelInstance = createModelInstance(device, renderer.renderHelper.renderInstManager.gfxRenderCache, file, null, null, null, bmtFile);
                 } catch(e) {
                     console.warn(`File ${basename} failed to parse:`, e);
                     continue;
                 }
 
                 modelInstance.name = basename;
-                if (basename.includes('_sky'))
-                    modelInstance.isSkybox = true;
                 renderer.addModelInstance(modelInstance);
                 renderer.textureHolder.addTextures(device, modelInstance.modelMaterialData.tex1Data!.tex1.textureDatas);
             } else if (file.name.endsWith('.bti')) {
