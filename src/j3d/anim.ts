@@ -1,18 +1,17 @@
-import { Checkbox } from "../ui";
-
 import * as RARC from '../Common/JSYSTEM/JKRArchive.js';
 import { J3DModelInstanceSimple } from "../Common/JSYSTEM/J3D/J3DGraphSimple";
 import { TTK1, TRK1, ANK1, AnimationBase, BCK, BTK, BRK } from "../Common/JSYSTEM/J3D/J3DLoader";
 
-export class AnimationCheckbox extends Checkbox {
+export class AnimationEntry {
     public animation: AnimationBase;
+    public name: string;
     public type: string;
 
-    constructor(file: RARC.RARCFile, type: string) {
-        super(file.name, false);
-        this.type = type;
+    constructor(file: RARC.RARCFile) {
+        this.name = file.name;
+        this.type = file.name.slice(-3);
 
-        switch (type) {
+        switch (this.type) {
             case "btk": this.animation = BTK.parse(file.buffer); break;
             case "brk": this.animation = BRK.parse(file.buffer); break;
             case "bck": this.animation = BCK.parse(file.buffer); break;

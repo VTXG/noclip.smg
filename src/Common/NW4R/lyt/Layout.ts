@@ -21,7 +21,6 @@ import { TPLTextureHolder } from "../../../PaperMarioTTYD/render.js";
 import { TPL } from "../../../PaperMarioTTYD/tpl.js";
 import { CharWriter, ResFont, TagProcessor } from "./Font.js";
 import { fillMatrix4x3 } from "../../../gfx/helpers/UniformBufferHelpers.js";
-import { drawWorldSpacePoint } from "../../../DebugJunk.js";
 
 //#region BRLYT
 interface RLYTSampler extends TEX1_SamplerSub {

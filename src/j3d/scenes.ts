@@ -5,7 +5,7 @@ import { readString } from '../util.js';
 import * as UI from '../ui.js';
 import * as Viewer from '../viewer.js';
 
-import { BMD, BMT, BTK, BRK, BCK } from '../Common/JSYSTEM/J3D/J3DLoader.js';
+import { AnimationBase, BMD, BMT, BTK, BRK, BCK, TTK1, TRK1, ANK1 } from '../Common/JSYSTEM/J3D/J3DLoader.js';
 import * as RARC from '../Common/JSYSTEM/JKRArchive.js';
 import { readBTI_Texture } from '../Common/JSYSTEM/JUTTexture.js';
 import { J3DModelData, J3DModelMaterialData } from '../Common/JSYSTEM/J3D/J3DGraphBase.js';
@@ -19,7 +19,7 @@ import * as JPAExplorer from '../InteractiveExamples/JPAExplorer.js';
 import { SceneContext } from '../SceneBase.js';
 import { GfxrAttachmentSlot } from '../gfx/render/GfxRenderGraph.js';
 import { GfxRenderInstList } from '../gfx/render/GfxRenderInstManager.js';
-import { AnimationCheckbox } from './ui.js';
+import { AnimationEntry } from './anim.js';
 
 export class BasicRenderer implements Viewer.SceneGfx {
     public renderHelper: GXRenderHelperGfx;
@@ -27,6 +27,7 @@ export class BasicRenderer implements Viewer.SceneGfx {
     public modelInstances: J3DModelInstanceSimple[] = [];
     public rarc: RARC.JKRArchive[] = [];
     public textureHolder = new GXTextureHolder();
+    public animations: AnimationEntry[] = [];
 
     constructor(device: GfxDevice) {
         this.renderHelper = new GXRenderHelperGfx(device);
@@ -62,34 +63,18 @@ export class BasicRenderer implements Viewer.SceneGfx {
         animPanel.customHeaderBackgroundColor = UI.COOL_BLUE_COLOR;
         animPanel.setTitle(UI.CUTSCENE_ICON, 'Animations');
 
-        for (let i = 0; i < this.rarc.length; i++) {
-            const rarc = this.rarc[i];
-            
-            for (let j = 0; j < rarc.files.length; j++) {
-                const animFile = rarc.files[j];
-    
-                if (animFile.name.length < 4)
-                    continue;
-    
-                let extension = animFile.name.slice(-3);
-    
-                if (extension === 'btk' || extension === 'brk' || extension === 'bck') {
-                    const animCheckbox = new AnimationCheckbox(animFile, extension);
-    
-                    animCheckbox.onchanged = () => {
-                        if (animCheckbox.checked) {
-                            for (let i = 0; i < this.modelInstances.length; i++)
-                                animCheckbox?.bindAnim(this.modelInstances[i]);
-                        }
-                        else {
-                            for (let i = 0; i < this.modelInstances.length; i++)
-                                animCheckbox?.clearAnim(this.modelInstances[i]);
-                        }
-                    }
-        
-                    animPanel.contents.appendChild(animCheckbox.elem);
-                }
+        for (let i = 0; i < this.animations.length; i++) {
+            const anim = this.animations[i];
+            const animCheckbox = new UI.Checkbox(anim.name, false);
+
+            animCheckbox.onchanged = () => {
+                for (let i = 0; i < this.modelInstances.length; i++)
+                    animCheckbox.checked
+                    ? anim.bindAnim(this.modelInstances[i])
+                    : anim.clearAnim(this.modelInstances[i]);
             }
+
+            animPanel.contents.appendChild(animCheckbox.elem);
         }
 
         const layersPanel = new UI.LayerPanel(this.modelInstances);
@@ -185,7 +170,12 @@ function createScenesFromBuffer(device: GfxDevice, renderer: BasicRenderer, buff
         for (let i = 0; i < rarc.files.length; i++) {
             const file = rarc.files[i];
 
-            if (file.name.endsWith('.bmd') || file.name.endsWith('.bdl')) {
+            if (file.name.length < 4)
+                continue;
+
+            const extension = file.name.slice(-4);
+
+            if (extension == '.bmd' || extension == '.bdl') {
                 const basename = file.name.split('.')[0];
                 const bmtFile = rarc.files.find((f) => f.name === `${basename}.bmt`) || null;
 
@@ -201,11 +191,15 @@ function createScenesFromBuffer(device: GfxDevice, renderer: BasicRenderer, buff
                 modelInstance.name = basename;
                 renderer.addModelInstance(modelInstance);
                 renderer.textureHolder.addTextures(device, modelInstance.modelMaterialData.tex1Data!.tex1.textureDatas);
-            } else if (file.name.endsWith('.bti')) {
+            }
+            else if (extension == '.bti') {
                 const texture = readBTI_Texture(file.buffer, file.name);
                 renderer.textureHolder.addTextures(device, [texture]);
             }
-        }
+            else if (extension == '.btk' || extension == '.brk' || extension == '.bck') {
+                renderer.animations.push(new AnimationEntry(file));
+            }
+        }        
     }
 
     if (['J3D2bmd3', 'J3D2bdl4'].includes(readString(buffer, 0, 8))) {

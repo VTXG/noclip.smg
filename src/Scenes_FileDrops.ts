@@ -7,15 +7,9 @@ import { readString, flatten } from "./util.js";
 import * as Yaz0 from './Common/Compression/Yaz0.js';
 import * as CX from './Common/Compression/CX.js';
 
-import * as Grezzo3DS from './OcarinaOfTime3D/scenes.js';
-import * as NNS_G3D from './nns_g3d/scenes.js';
 import * as J3D from './j3d/scenes.js';
-import * as CTR_H3D from './Common/CTR_H3D/H3D.js';
 import * as RRES from './rres/scenes.js';
-import * as PaperMarioTTYD from './PaperMarioTTYD/Scenes_PaperMarioTTYD.js';
 import * as JPAExplorer from './InteractiveExamples/JPAExplorer.js';
-import * as SourceFileDrops from './SourceEngine/Scenes_FileDrops.js';
-import * as SuperMonkeyBall from './SuperMonkeyBall/Scenes_SuperMonkeyBall.js';
 import { SceneContext } from "./SceneBase.js";
 import { DataFetcher, NamedArrayBufferSlice } from "./DataFetcher.js";
 
@@ -77,9 +71,6 @@ export async function createSceneFromFiles(context: SceneContext, buffers: Named
 
     const buffer = buffers[0];
 
-    if (buffer.name.endsWith('.zar') || buffer.name.endsWith('.gar') || buffer.name.endsWith('.gar.lzs'))
-        return Grezzo3DS.createSceneFromZARBuffer(device, buffer);
-
     if (buffer.name.endsWith('.arc') || buffer.name.endsWith('.carc') || buffer.name.endsWith('.szs'))
         return loadArbitraryFile(context, buffer);
 
@@ -94,23 +85,6 @@ export async function createSceneFromFiles(context: SceneContext, buffers: Named
 
     if (buffer.name.endsWith('.rarc') || buffer.name.endsWith('.bmd') || buffer.name.endsWith('.bdl'))
         return J3D.createSceneFromBuffer(context, buffer);
-
-    if (buffer.name.endsWith('.nsbmd'))
-        return NNS_G3D.createBasicNSBMDRendererFromNSBMD(device, buffers);
-
-    if (buffers.length === 2 && buffers[0].name === 'd' && buffers[1].name === 't')
-        return PaperMarioTTYD.createWorldRendererFromBuffers(device, buffers[0], buffers[1]);
-
-    if (buffer.name.endsWith('.bch'))
-        CTR_H3D.parse(buffer);
-
-    if (buffer.name.endsWith('.bsp') || buffer.name.endsWith('.gma'))
-        return SourceFileDrops.createFileDropsScene(context, buffer); 
-
-    const superMonkeyBallRenderer = SuperMonkeyBall.createSceneFromNamedBuffers(context, buffers);
-    if (superMonkeyBallRenderer !== null) {
-        return superMonkeyBallRenderer;
-    }
 
     throw "whoops";
 }
