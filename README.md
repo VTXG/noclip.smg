@@ -1,7 +1,12 @@
 <img align="right" src="src/assets/logo.png">
 
-# <a href="https://noclip.website">noclip</a>
+# noclip.smg
+A WIP modified version of noclip.website that targets SMG/SMG2 modding.
 
+*Todo: Add more stuff here*
+
+<details>
+<summary>Original README</summary>
 The reverse engineering of model formats was done by many people. See the application for full credits.
 
 ## Contributing
@@ -37,3 +42,4 @@ Hold `\` | Make camera move slower
 `Numpad 5` | Immediately stop all orbiting (requries Orbit or Ortho camera modes)
 `Numpad 2`/`Numpad 4`/`Numpad 6`/`Numpad 8` | Snap view to front/left/right/top view (requires Orbit camera mode)
 `F` | Not sure what this key does, let me know if you figure it out
+</details>
