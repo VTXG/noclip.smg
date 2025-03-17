@@ -161,7 +161,7 @@ impl Deserialize for BSPHeader {
         let rendered_vertices_offset = data.read_u32::<LittleEndian>()?;
         data.seek(SeekFrom::Current(4))?;
         let lightmap_vertices_offset = data.read_u32::<LittleEndian>()?;
-        assert_eq!(data.read_u32::<LittleEndian>()?, TagClass::ScenarioStructureBsp.into());
+        assert_eq!(data.read_u32::<LittleEndian>()?, TagClass::ScenarioStructureBsp as u32);
         Ok(BSPHeader {
             bsp_offset,
             rendered_vertices_offset,
