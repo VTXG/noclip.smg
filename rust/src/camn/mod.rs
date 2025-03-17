@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 #[brw(big)]
 pub struct CAMNHeader {
     #[brw(little)]
-    pub magic: u32,
+    pub magic: CAMNMagic,
     #[brw(little)]
     pub frame_type: FrameType,
     pub unk1: i32,
@@ -24,28 +24,18 @@ pub struct CAMNHeader {
 }
 
 #[wasm_bindgen]
-#[derive(BinRead, BinWrite, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(BinRead, BinWrite, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[brw(repr = u32)]
+pub enum CAMNMagic {
+    MAGIC = 1329876545
+}
+
+#[wasm_bindgen]
+#[derive(BinRead, BinWrite, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[brw(repr = u32)]
 pub enum FrameType {
     CANM = 1296974147,
     CKAN = 1312901955
-}
-
-impl Serialize for FrameType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer {
-        (*self as u32).serialize(serializer)
-    }
-}
-
-impl<'de> Deserialize<'de> for FrameType {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: Deserializer<'de> {
-        let val = u32::deserialize(deserializer)?;
-        Ok(unsafe {std::mem::transmute(val)})
-    }
 }
 
 #[wasm_bindgen]
@@ -76,6 +66,7 @@ impl TrackSelection {
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, PartialOrd, BinRead, BinWrite, Serialize, Deserialize)]
+#[wasm_bindgen]
 pub struct Frame {
     pub frameid: f32,
     pub value: f32,
@@ -129,6 +120,41 @@ impl Track {
         reader.seek(SeekFrom::Start(restore))?;
         Ok(result)
     }
+    pub fn save<W: BinWriterExt>(&self, writer: &mut W, data: &mut Vec<f32>, iscamn: bool) -> BinResult<()> {
+        let mut mydata = Vec::<f32>::new();
+        for i in 0..self.values.len() {
+            let cur = self.values[i];
+            if self.values.len() == 1 {
+                mydata.push(cur.value);
+                continue;
+            }
+            if iscamn {
+                mydata.push(cur.value);
+            } else {
+                mydata.push(cur.frameid);
+                mydata.push(cur.value);
+                mydata.push(cur.inslope);
+                if !self.usesinglescope {
+                    mydata.push(cur.outslope);
+                }
+            }
+        }
+        let index = data.windows(mydata.len()).position(|x| x == mydata);
+        let mut index = match index {
+            Some(index) => index as i32,
+            None => -1
+        };
+        if index == -1 {
+            index = data.len() as i32;
+            data.extend_from_slice(&mydata);
+        }
+        writer.write_be(&(data.len() as i32))?;
+        writer.write_be(&index)?;
+        if !iscamn {
+            writer.write_be(&(self.usesinglescope as i32))?;
+        }
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -150,6 +176,35 @@ impl CAMN {
         }
         Ok(result)
     }
+    pub fn save<W: BinWriterExt>(&self, writer: &mut W) -> BinResult<()> {
+        writer.write_le(&CAMNMagic::MAGIC)?;
+        let camtype = match self.isfullframes {
+            true => FrameType::CANM,
+            false => FrameType::CKAN
+        };
+        writer.write_le(&camtype)?;
+        let CAMNHeader {unk1, unk2, unk3, unk4, frame_count, ..} = self.header;
+        let full = match self.isfullframes {
+            true => 0x40,
+            false => 0x60
+        };
+        writer.write_be(&unk1)?;
+        writer.write_be(&unk2)?;
+        writer.write_be(&unk3)?;
+        writer.write_be(&unk4)?;
+        writer.write_be(&frame_count)?;
+        writer.write_be(&full)?;
+        let mut frame_data = vec![];
+        for suit in TrackSelection::new() {
+            self.tracks[&suit].save(writer, &mut frame_data, self.isfullframes)?;
+        }
+        let smth = (frame_data.len() as i32 + 2) * 4;
+        writer.write_be(&smth)?;
+        writer.write_be(&frame_data)?;
+        let unk_data = vec![0x3Du8, 0xCC, 0xCC, 0xCD, 0x4E, 0x6E, 0x6B, 0x28, 0xFF, 0xFF, 0xFF, 0xFF];
+        writer.write(&unk_data)?;
+        Ok(())
+    }
 }
 
 #[wasm_bindgen]
@@ -169,4 +224,15 @@ pub fn camn_to_js(path: &str) -> Result<JsValue, JsValue> {
         }
         Err(e) => Err(JsValue::from_str(&e.to_string()))
     }
+}
+
+#[wasm_bindgen]
+pub fn js_camn_to_bytes(data: JsValue) -> Vec<u8> {
+    if let Ok(camn) = serde_wasm_bindgen::from_value::<CAMN>(data) {
+        let mut cursor = Cursor::new(vec![]);
+        if let Ok(_) = camn.save(&mut cursor) {
+            return cursor.into_inner();
+        }
+    }
+    Vec::new()
 }

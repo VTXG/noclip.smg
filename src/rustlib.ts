@@ -3,6 +3,22 @@ import init, * as rust from '../rust/pkg/noclip_support';
 
 export { rust };
 
+export class Track {
+    values: rust.Frame[];
+    usesinglescope: boolean;
+}
+
+export class CAMN {
+    header: rust.CAMNHeader;
+    tracks: Record<rust.TrackSelection, [Track]>;
+    isfullframes: boolean;
+}
+
+export function camn_to_js(path: string) : CAMN {
+    let data = rust.camn_to_js(path);
+    return data
+}
+
 declare const process: unknown;
 
 export async function loadRustLib() {
