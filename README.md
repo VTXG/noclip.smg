@@ -1,6 +1,6 @@
 <img align="right" src="src/assets/logo.png">
 
-# noclip.smg
+# noclip.smg 
 A WIP modified version of noclip.website that targets SMG/SMG2 modding.
 
 *Todo: Add more stuff here*
