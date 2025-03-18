@@ -1995,8 +1995,8 @@ class About extends Panel {
 }
 </style>
 
-<h1> <img src="${logoURL}"> <span> noclip.website </span> </h1>
-<h2> A digital museum of video game levels </h2>
+<h1> <img src="${logoURL}"> <span> noclip.smg </span> </h1>
+<h2> A modified version of <a href="https://github.com/magcius/noclip.website/">noclip.website</a> for Galaxy modding.</h2>
 
 <a href="#" class="FAQLink"> What is this? / FAQ </a>
 
@@ -2004,9 +2004,9 @@ class About extends Panel {
 <p> Hold <strong>SHIFT</strong> to go faster, and use <strong>MOUSE WHEEL</strong> to fine tune the speed
 <strong>Z</strong> toggles the UI. </p>
 
-<p><a href="https://discord.gg/bkJmKKv"><strong>JOIN THE DISCORD</strong> by clicking here</a></p>
+<p><a href="https://discord.gg/bkJmKKv"><strong>JOIN THE NOCLIP.WEBSITE DISCORD</strong> by clicking here</a></p>
 
-<p><strong>CODE PRIMARILY WRITTEN</strong> by Jasper</p>
+<p><strong>CODE PRIMARILY WRITTEN</strong> by VTXG<br><strong>ORIGINAL CODE PRIMARILY WRITTEN</strong> by Jasper</p>
 
 <p><strong>OPEN SOURCE</strong> at <a href="${GITHUB_URL}">GitHub</a></p>
 

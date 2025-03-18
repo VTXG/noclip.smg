@@ -3479,7 +3479,7 @@ export class StudioPanel extends FloatingPanel {
             if (!input.files || !input.files.item(0))
                 return;
             try {
-                const fileContents = await this.loadFile(input.files.item(0) as File);
+                const fileContents = await this.loadFileText(input.files.item(0) as File);
                 const obj = JSON.parse(fileContents);
                 let animation;
                 if (this.isValidAnimationObj(obj)) {
@@ -3513,11 +3513,11 @@ export class StudioPanel extends FloatingPanel {
     }
 
     private importCanm() {
-        
+        this.displayError('CANM not implemented yet!');
     }
 
     private exportCanm() {
-        
+        this.displayError('CANM not implemented yet!');
     }
 
     private isValidAnimationObj(obj: any): boolean {
@@ -3731,7 +3731,18 @@ export class StudioPanel extends FloatingPanel {
         return tlMode;
     }
 
-    private loadFile(file: File): Promise<string> {
+    private loadFileBin(file: File): Promise<ArrayBuffer> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                resolve(reader.result as ArrayBuffer);
+            }
+            reader.onerror = (e) => reject(e);
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    private loadFileText(file: File): Promise<string> {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => {

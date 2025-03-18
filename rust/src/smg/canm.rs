@@ -10,9 +10,9 @@ use std::collections::BTreeMap;
 #[wasm_bindgen]
 #[derive(BinRead, BinWrite, Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[brw(big)]
-pub struct CAMNHeader {
+pub struct CANMHeader {
     #[brw(little)]
-    pub magic: CAMNMagic,
+    pub magic: CANMMagic,
     #[brw(little)]
     pub frame_type: FrameType,
     pub unk1: i32,
@@ -26,7 +26,7 @@ pub struct CAMNHeader {
 #[wasm_bindgen]
 #[derive(BinRead, BinWrite, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[brw(repr = u32)]
-pub enum CAMNMagic {
+pub enum CANMMagic {
     MAGIC = 1329876545
 }
 
@@ -88,11 +88,11 @@ pub struct Track {
 }
 
 impl Track {
-    pub fn load<R: BinReaderExt>(reader: &mut R, pos: u64, iscamn: bool) -> BinResult<Self> {
+    pub fn load<R: BinReaderExt>(reader: &mut R, pos: u64, iscanm: bool) -> BinResult<Self> {
         let mut result = Self::default();
         let filecount = i32::read_be(reader)?;
         let start = i32::read_be(reader)? as u64;
-        if !iscamn {
+        if !iscanm {
             result.usesinglescope = i32::read_be(reader)? == 0;
         }
         let restore = reader.stream_position()?;
@@ -104,7 +104,7 @@ impl Track {
                 result.values.push(frame);
                 continue;
             }
-            if iscamn {
+            if iscanm {
                 frame.frameid = i as _;
                 frame.value = reader.read_be()?;
             } else {
@@ -120,7 +120,7 @@ impl Track {
         reader.seek(SeekFrom::Start(restore))?;
         Ok(result)
     }
-    pub fn save<W: BinWriterExt>(&self, writer: &mut W, data: &mut Vec<f32>, iscamn: bool) -> BinResult<()> {
+    pub fn save<W: BinWriterExt>(&self, writer: &mut W, data: &mut Vec<f32>, iscanm: bool) -> BinResult<()> {
         let mut mydata = Vec::<f32>::new();
         for i in 0..self.values.len() {
             let cur = self.values[i];
@@ -128,7 +128,7 @@ impl Track {
                 mydata.push(cur.value);
                 continue;
             }
-            if iscamn {
+            if iscanm {
                 mydata.push(cur.value);
             } else {
                 mydata.push(cur.frameid);
@@ -150,7 +150,7 @@ impl Track {
         }
         writer.write_be(&(data.len() as i32))?;
         writer.write_be(&index)?;
-        if !iscamn {
+        if !iscanm {
             writer.write_be(&(self.usesinglescope as i32))?;
         }
         Ok(())
@@ -158,16 +158,16 @@ impl Track {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CAMN {
-    pub header: CAMNHeader,
+pub struct CANM {
+    pub header: CANMHeader,
     pub tracks: BTreeMap<TrackSelection, Track>,
     pub isfullframes: bool
 }
 
-impl CAMN {
+impl CANM {
     pub fn load<R: BinReaderExt>(reader: &mut R) -> BinResult<Self> {
         let start = reader.stream_position()?;
-        let header = CAMNHeader::read_be(reader)?;
+        let header = CANMHeader::read_be(reader)?;
         let mut result = Self {header, tracks: BTreeMap::new(), isfullframes: false};
         result.isfullframes = result.header.frame_type == FrameType::CANM;
         let offset = header.offset as u64;
@@ -177,13 +177,13 @@ impl CAMN {
         Ok(result)
     }
     pub fn save<W: BinWriterExt>(&self, writer: &mut W) -> BinResult<()> {
-        writer.write_le(&CAMNMagic::MAGIC)?;
+        writer.write_le(&CANMMagic::MAGIC)?;
         let camtype = match self.isfullframes {
             true => FrameType::CANM,
             false => FrameType::CKAN
         };
         writer.write_le(&camtype)?;
-        let CAMNHeader {unk1, unk2, unk3, unk4, frame_count, ..} = self.header;
+        let CANMHeader {unk1, unk2, unk3, unk4, frame_count, ..} = self.header;
         let full = match self.isfullframes {
             true => 0x40,
             false => 0x60
@@ -208,29 +208,24 @@ impl CAMN {
 }
 
 #[wasm_bindgen]
-pub fn camn_to_js(path: &str) -> Result<JsValue, JsValue> {
-    match std::fs::read(path) {
-        Ok(data) => {
-            let mut cursor = Cursor::new(data);
-            match CAMN::load(&mut cursor) {
-                Ok(camn) => {
-                    match serde_wasm_bindgen::to_value(&camn) {
-                        Ok(value) => Ok(value),
-                        Err(e) => Err(e.into())
-                    }
-                },
-                Err(e) => Err(JsValue::from_str(&e.to_string()))
+pub fn canm_to_js(data: &[u8]) -> Result<JsValue, JsValue> {
+    let mut cursor = Cursor::new(data);
+    match CANM::load(&mut cursor) {
+        Ok(canm) => {
+            match serde_wasm_bindgen::to_value(&canm) {
+                Ok(value) => Ok(value),
+                Err(e) => Err(e.into())
             }
-        }
+        },
         Err(e) => Err(JsValue::from_str(&e.to_string()))
     }
 }
 
 #[wasm_bindgen]
-pub fn js_camn_to_bytes(data: JsValue) -> Vec<u8> {
-    if let Ok(camn) = serde_wasm_bindgen::from_value::<CAMN>(data) {
+pub fn js_canm_to_bytes(data: JsValue) -> Vec<u8> {
+    if let Ok(canm) = serde_wasm_bindgen::from_value::<CANM>(data) {
         let mut cursor = Cursor::new(vec![]);
-        if let Ok(_) = camn.save(&mut cursor) {
+        if let Ok(_) = canm.save(&mut cursor) {
             return cursor.into_inner();
         }
     }

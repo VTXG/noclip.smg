@@ -1,5 +1,5 @@
 
-/* @preserve The source code to this website is under the MIT license and can be found at https://github.com/magcius/noclip.website */
+/* @preserve The original source code to this website is under the MIT license and can be found at https://github.com/magcius/noclip.website */
 
 import { Viewer, SceneGfx, InitErrorCode, initializeViewer, makeErrorUI, resizeCanvas, ViewerUpdateInfo } from './viewer.js';
 
