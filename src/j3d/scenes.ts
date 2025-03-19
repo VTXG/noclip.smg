@@ -21,7 +21,7 @@ import { SceneContext } from '../SceneBase.js';
 import { GfxrAttachmentSlot } from '../gfx/render/GfxRenderGraph.js';
 import { GfxRenderInstList } from '../gfx/render/GfxRenderInstManager.js';
 
-export class BasicRenderer implements Viewer.SceneGfx {
+export class J3DRenderer implements Viewer.SceneGfx {
     public renderHelper: GXRenderHelperGfx;
     private renderInstListMain = new GfxRenderInstList();
     public modelInstances: J3DModelInstanceSimple[] = [];
@@ -63,7 +63,7 @@ export class BasicRenderer implements Viewer.SceneGfx {
         animPanel.customHeaderBackgroundColor = UI.COOL_BLUE_COLOR;
         animPanel.setTitle(UI.CUTSCENE_ICON, 'Animations');
 
-        const scrollViewer = new UI.ListContainer();
+        const animList = new UI.ListContainer();
 
         for (let i = 0; i < this.animations.length; i++) {
             const anim = this.animations[i];
@@ -76,10 +76,10 @@ export class BasicRenderer implements Viewer.SceneGfx {
                     : anim.clearAnim(this.modelInstances[i]);
             }
 
-            scrollViewer.contents.appendChild(animCheckbox.elem);
+            animList.contents.appendChild(animCheckbox.elem);
         }
 
-        animPanel.contents.appendChild(scrollViewer.elem);
+        animPanel.contents.appendChild(animList.elem);
 
         const layersPanel = new UI.LayerPanel(this.modelInstances);
         return [layersPanel, animPanel, renderHacksPanel];
@@ -164,7 +164,7 @@ export function createModelInstance(device: GfxDevice, cache: GfxRenderCache, bm
     return scene;
 }
 
-function createScenesFromBuffer(device: GfxDevice, renderer: BasicRenderer, buffer: ArrayBufferSlice): void {
+function createScenesFromBuffer(device: GfxDevice, renderer: J3DRenderer, buffer: ArrayBufferSlice): void {
     if (['RARC', 'CRAR'].includes(readString(buffer, 0x00, 0x04))) {
         const rarc = RARC.parse(buffer);
         renderer.rarc.push(rarc);
@@ -223,7 +223,7 @@ export function createSceneFromBuffer(context: SceneContext, buffer: ArrayBuffer
     }
 
     const device = context.device;
-    const renderer = new BasicRenderer(device);
+    const renderer = new J3DRenderer(device);
     createScenesFromBuffer(device, renderer, buffer);
     return renderer;
 }

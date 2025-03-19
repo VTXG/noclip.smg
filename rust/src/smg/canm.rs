@@ -73,9 +73,11 @@ pub struct Frame {
     pub outslope: f32
 }
 
+#[wasm_bindgen(js_class = "Frame")]
 impl Frame {
     #[inline]
-    pub const fn new() -> Frame {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
         Frame { frameid: 0f32, value: 0f32, inslope: 0f32, outslope: 0f32 }
     }
 }

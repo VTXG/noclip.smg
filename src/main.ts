@@ -28,6 +28,7 @@ import InputManager from './InputManager.js';
 import { WebXRContext } from './WebXR.js';
 import { debugJunk } from './DebugJunk.js';
 import { IS_DEVELOPMENT } from './BuildVersion.js';
+import { J3DRenderer } from './j3d/scenes.js';
 
 const sceneGroups: (string | SceneGroup)[] = [
     "Base Game",
@@ -413,6 +414,14 @@ class Main {
         //     console.log(files[i].path + '/' + files[i].name);
         // }
 
+        if (this.currentSceneDesc instanceof DroppedFileSceneDesc && this.currentSceneDesc.scene instanceof J3DRenderer) {
+            // TODO: Load Anim arcs
+            // files[0]
+            // this.currentSceneDesc.scene.
+            // this.currentSceneDesc.files[0].name
+            // return;
+        }
+
         const sceneDesc = new DroppedFileSceneDesc(files);
         this.droppedFileGroup.sceneDescs.push(sceneDesc);
         this.sceneDatabase.addSceneDesc(this.droppedFileGroup, sceneDesc);
@@ -712,6 +721,7 @@ class Main {
                 this.loadingSceneDesc = null;
                 this.viewer.setScene(scene);
                 this._onSceneChanged(scene, sceneStateStr, timeState);
+                // sceneDesc.scene = scene;
             }
         });
 

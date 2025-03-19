@@ -10,6 +10,9 @@ import { GlobalSaveManager } from './SaveManager.js';
 import { getPointHermite } from './Spline.js';
 import { Muxer, ArrayBufferTarget } from 'webm-muxer';
 import { downloadBuffer } from './DownloadUtils.js';
+import * as  CANM from './CANM.js';
+import { Frame } from '../rust/pkg/noclip_support.js';
+import { flatten } from './util.js';
 
 export const CLAPBOARD_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" height="20" fill="white"><path d="M61,22H14.51l3.41-.72h0l7.74-1.64,2-.43h0l6.85-1.46h0l1.17-.25,8.61-1.83h0l.78-.17,9-1.91h0l.4-.08L60,12.33a1,1,0,0,0,.77-1.19L59.3,4.3a1,1,0,0,0-1.19-.77l-19,4-1.56.33h0L28.91,9.74,27.79,10h0l-9.11,1.94-.67.14h0L3.34,15.17a1,1,0,0,0-.77,1.19L4,23.11V60a1,1,0,0,0,1,1H61a1,1,0,0,0,1-1V23A1,1,0,0,0,61,22ZM57,5.8l.65.6.89,4.19-1.45.31L52.6,6.75ZM47.27,7.88,51.8,12,47.36,13,42.82,8.83ZM37.48,10,42,14.11l-4.44.94L33,10.91ZM27.7,12l4.53,4.15-4.44.94L23.26,13Zm-9.78,2.08,4.53,4.15L18,19.21l-4.53-4.15ZM19.49,29H14.94l3.57-5h4.54Zm9-5h4.54l-3.57,5H24.94ZM39,45.88l-11,6A1,1,0,0,1,26.5,51V39A1,1,0,0,1,28,38.12l11,6a1,1,0,0,1,0,1.76ZM39.49,29H34.94l3.57-5h4.54Zm10,0H44.94l3.57-5h4.54ZM60,29H54.94l3.57-5H60Z"/></svg>`;
 const UNDO_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" height="16"><g transform="translate(0,-952.36218)"><path overflow="visible" style="" d="m 39.999997,975.36218 -31.9999995,25.00002 31.9999995,25 0,-14 c 1.7024,-0.08 31.3771,-0.033 52.000005,18 -8.252999,-25.4273 -34.173805,-35.48722 -52.000005,-40.00002 z" fill="#ffffff" stroke="none"/></g></svg>`;
@@ -3517,7 +3520,38 @@ export class StudioPanel extends FloatingPanel {
     }
 
     private exportCanm() {
-        this.displayError('CANM not implemented yet!');
+        if (!this.animation || !this.timeline) {
+            this.displayError('Export failed - No animation is currently loaded.');
+            return;
+        }
+
+        const anim = new CANM.CANM();
+        anim.isfullframes = false;
+        anim.tracks = new Map();
+
+        const trackNames = CANM.get_track_selections();
+
+        for (let i = 0; i < trackNames.length; i++) {
+            switch (i) {
+                case 0: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.posXTrack.keyframes)); break;
+                case 1: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.posYTrack.keyframes)); break;
+                case 2: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.posZTrack.keyframes)); break;
+                case 3: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.lookAtXTrack.keyframes)); break;
+                case 4: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.lookAtYTrack.keyframes)); break;
+                case 5: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.lookAtZTrack.keyframes)); break;
+                case 6: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.bankTrack.keyframes)); break;
+                default:
+                    break;
+            }
+        }
+
+        const a = document.createElement('a');
+        const bytes = CANM.js_canm_to_bytes(anim);
+        console.log(bytes);
+        const data = new Blob([bytes], { type: 'application/octet-stream' });
+        a.href = URL.createObjectURL(data);
+        a.download = GlobalSaveManager.getCurrentSceneDescId() + '.canm';
+        a.click();
     }
 
     private isValidAnimationObj(obj: any): boolean {

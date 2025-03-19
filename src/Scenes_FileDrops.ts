@@ -80,6 +80,7 @@ export async function createSceneFromFiles(context: SceneContext, buffers: Named
 export class DroppedFileSceneDesc implements SceneDesc {
     public id: string;
     public name: string;
+    public scene: SceneGfx | null;
 
     constructor(public files: File[]) {
         // Pick some file as the ID.
@@ -87,6 +88,7 @@ export class DroppedFileSceneDesc implements SceneDesc {
 
         this.id = file.name;
         this.name = file.name;
+        this.scene = null;
     }
 
     public async createScene(device: GfxDevice, context: SceneContext): Promise<SceneGfx> {
