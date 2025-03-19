@@ -22,6 +22,16 @@ pub struct CANMHeader {
     pub offset: u32
 }
 
+#[wasm_bindgen(js_class = "CANMHeader")]
+impl CANMHeader {
+    #[inline]
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        Self { magic: CANMMagic::ANDO, frame_type: FrameType::CANM, unk1: 0, unk2: 0, 
+        unk3: 0, unk4: 0, frame_count: 0, offset: 0 }
+    }
+}
+
 #[wasm_bindgen]
 #[derive(BinRead, BinWrite, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[brw(repr = u32)]
