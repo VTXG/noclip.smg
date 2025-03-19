@@ -10,7 +10,7 @@ import { GlobalSaveManager } from './SaveManager.js';
 import { getPointHermite } from './Spline.js';
 import { Muxer, ArrayBufferTarget } from 'webm-muxer';
 import { downloadBuffer } from './DownloadUtils.js';
-import * as  CANM from './CANM.js';
+import * as CANM from './CANM.js';
 import { Frame } from '../rust/pkg/noclip_support.js';
 import { flatten } from './util.js';
 
@@ -3533,13 +3533,13 @@ export class StudioPanel extends FloatingPanel {
 
         for (let i = 0; i < trackNames.length; i++) {
             switch (i) {
-                case 0: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.posXTrack.keyframes)); break;
-                case 1: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.posYTrack.keyframes)); break;
-                case 2: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.posZTrack.keyframes)); break;
-                case 3: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.lookAtXTrack.keyframes)); break;
-                case 4: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.lookAtYTrack.keyframes)); break;
-                case 5: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.lookAtZTrack.keyframes)); break;
-                case 6: anim.tracks.set(trackNames[i], CANM.studio_track_to_track(this.animation.bankTrack.keyframes)); break;
+                case 0: anim.tracks.get(trackNames[i])?.push(CANM.studio_track_to_track(this.animation.posXTrack.keyframes)); break;
+                case 1: anim.tracks.get(trackNames[i])?.push(CANM.studio_track_to_track(this.animation.posYTrack.keyframes)); break;
+                case 2: anim.tracks.get(trackNames[i])?.push(CANM.studio_track_to_track(this.animation.posZTrack.keyframes)); break;
+                case 3: anim.tracks.get(trackNames[i])?.push(CANM.studio_track_to_track(this.animation.lookAtXTrack.keyframes)); break;
+                case 4: anim.tracks.get(trackNames[i])?.push(CANM.studio_track_to_track(this.animation.lookAtYTrack.keyframes)); break;
+                case 5: anim.tracks.get(trackNames[i])?.push(CANM.studio_track_to_track(this.animation.lookAtZTrack.keyframes)); break;
+                case 6: anim.tracks.get(trackNames[i])?.push(CANM.studio_track_to_track(this.animation.bankTrack.keyframes)); break;
                 default:
                     break;
             }

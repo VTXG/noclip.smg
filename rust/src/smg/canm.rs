@@ -223,12 +223,16 @@ pub fn canm_to_js(data: &[u8]) -> Result<JsValue, JsValue> {
 }
 
 #[wasm_bindgen]
-pub fn js_canm_to_bytes(data: JsValue) -> Vec<u8> {
-    if let Ok(canm) = serde_wasm_bindgen::from_value::<CANM>(data) {
-        let mut cursor = Cursor::new(vec![]);
-        if let Ok(_) = canm.save(&mut cursor) {
-            return cursor.into_inner();
-        }
+pub fn js_canm_to_bytes(data: JsValue) -> Result<Vec<u8>, JsValue> {
+    match serde_wasm_bindgen::from_value::<CANM>(data) {
+        Ok(canm) => {
+            let mut cursor = Cursor::new(vec![]);
+            match canm.save(&mut cursor) {
+                Ok(_) => Ok(cursor.into_inner()),
+                Err(e) => Err(JsValue::from_str(&e.to_string()))
+            }
+        },
+        Err(e) => Err(e.into())
     }
-    Vec::new()
 }
+    

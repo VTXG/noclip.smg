@@ -8,7 +8,7 @@ export class Track {
 
 export class CANM {
     header: rust.CANMHeader;
-    tracks: Map<string, Track>;
+    tracks: Map<string, Track[]>;
     isfullframes: boolean;
 }
 
@@ -24,9 +24,10 @@ export function get_track_selections(): string[] {
     return Object.values(rust.TrackSelection).filter((x) => typeof x === 'string')
 }
 
-export function studio_track_to_track(keyframes: Studio.Keyframe[]): Track {
+export function studio_track_to_track(keyframes: Studio.Keyframe[], usesinglescope: boolean = true): Track {
     const track = new Track();
     track.values = [];
+    track.usesinglescope = usesinglescope;
 
     for (let i = 0; i < keyframes.length; i++) {
         const keyframe = keyframes[i];
