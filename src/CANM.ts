@@ -18,3 +18,7 @@ export function canm_to_js(data: Uint8Array) : CAMN {
 export function js_canm_to_bytes(data: CAMN) : Uint8Array {
     return rust.js_canm_to_bytes(data)
 }
+
+export function track_selections() : string[] {
+    return Object.values(rust.TrackSelection).filter((x) => typeof x === 'string')
+}
