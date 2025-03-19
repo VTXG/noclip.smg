@@ -1,8 +1,7 @@
 use binrw::prelude::*;
-use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::prelude::*;
 use js_sys::*;
 use serde::*;
-use wasm_bindgen::JsValue;
 use std::io::SeekFrom;
 use std::io::Cursor;
 use std::collections::BTreeMap;
@@ -27,7 +26,7 @@ pub struct CANMHeader {
 #[derive(BinRead, BinWrite, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[brw(repr = u32)]
 pub enum CANMMagic {
-    MAGIC = 1329876545
+    ANDO = 1329876545
 }
 
 #[wasm_bindgen]
@@ -177,7 +176,7 @@ impl CANM {
         Ok(result)
     }
     pub fn save<W: BinWriterExt>(&self, writer: &mut W) -> BinResult<()> {
-        writer.write_le(&CANMMagic::MAGIC)?;
+        writer.write_le(&CANMMagic::ANDO)?;
         let camtype = match self.isfullframes {
             true => FrameType::CANM,
             false => FrameType::CKAN

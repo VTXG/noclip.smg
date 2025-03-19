@@ -19,6 +19,7 @@
     "send": "^1.1.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
+    "vitest": "^3.0.9",
     "wasm-pack": "^0.13.1",
     "webm-muxer": "^5.0.2"
   },
@@ -34,7 +35,8 @@
     "build:rust": "wasm-pack build -t web rust",
     "build:rust-dev": "wasm-pack build --dev -t web rust",
     "typecheck": "tsc -w --noEmit",
-    "watch:rust": "pnpm run build:rust-dev && onchange rust/src/**/*.rs rust/noclip-macros/src/**/*.rs -- pnpm run build:rust-dev"
+    "watch:rust": "pnpm run build:rust-dev && onchange rust/src/**/*.rs rust/noclip-macros/src/**/*.rs -- pnpm run build:rust-dev",
+    "test": "wasm-pack build --target nodejs rust && vitest"
   },
   "bin": {
     "nc-bcsvtool": "./src/tools/bcsvtool.ts",

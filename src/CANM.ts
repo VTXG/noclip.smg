@@ -7,10 +7,14 @@ export class Track {
 
 export class CAMN {
     header: rust.CANMHeader;
-    tracks: Record<rust.TrackSelection, [Track]>;
+    tracks: Map<string, [Track]>;
     isfullframes: boolean;
 }
 
-export function camn_to_js(data: Uint8Array) : CAMN {
+export function canm_to_js(data: Uint8Array) : CAMN {
     return rust.canm_to_js(data);
+}
+
+export function js_canm_to_bytes(data: CAMN) : Uint8Array {
+    return rust.js_canm_to_bytes(data)
 }
