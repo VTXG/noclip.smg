@@ -36,15 +36,15 @@ impl CANMHeader {
 #[derive(BinRead, BinWrite, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[brw(repr = u32)]
 pub enum CANMMagic {
-    ANDO = 1329876545
+    ANDO = 0x4F444E41
 }
 
 #[wasm_bindgen]
 #[derive(BinRead, BinWrite, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[brw(repr = u32)]
 pub enum FrameType {
-    CANM = 1296974147,
-    CKAN = 1312901955
+    CANM = 0x4D4E4143,
+    CKAN = 0x4E414B43
 }
 
 #[wasm_bindgen]
