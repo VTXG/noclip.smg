@@ -3528,7 +3528,7 @@ export class StudioPanel extends FloatingPanel {
         anim.isfullframes = false;
         anim.tracks = new Map();
 
-        const header = new rust.CANMHeader();
+        const header = new CANM.CANMHeader();
         const trackNames = CANM.get_track_selections();
 
         for (let i = 0; i < trackNames.length; i++) {
